@@ -1,0 +1,30 @@
+package com.sxt.sys.service;
+
+import java.util.List;
+
+import com.sxt.sys.domain.Permission;
+import com.sxt.sys.utils.DataGridView;
+import com.sxt.sys.vo.PermissionVo;
+
+public interface PermissionService {
+	
+	//查询所有的菜单
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo);
+	
+	//根据用户ID查询菜单
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo,Integer userid);
+
+	//查询所有的菜单或者权限
+	public DataGridView queryAllPermission(PermissionVo permissionVo);
+
+	//添加权限或者菜单
+	public int addPermission(PermissionVo permissionVo);
+
+	//根据ID查询一个权限或者菜单
+	public Permission querPermissionById(Integer id);
+
+	//更新权限或者菜单
+	public int updatePermission(PermissionVo permissionVo);
+	//删除权限或者菜单
+	public int deletePermission(PermissionVo permissionVo);
+}

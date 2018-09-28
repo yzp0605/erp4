@@ -1,0 +1,13 @@
+package com.sxt.sys.service;
+
+import com.sxt.sys.domain.User;
+
+/**
+ * 用户服务接口
+ * @author LJH
+ *
+ */
+public interface UserService {
+
+	public User queryUserByLoginName(String loginname);
+}

@@ -1,0 +1,24 @@
+package com.sxt.sys.service;
+
+import java.io.InputStream;
+
+import com.sxt.sys.utils.DataGridView;
+import com.sxt.sys.vo.WorkFlowVo;
+
+/**
+ * 工作流的服务类
+ * @author LJH
+ *
+ */
+public interface WorkFlowService {
+
+	//查询所有的流程部署信息
+	DataGridView loadAllProcessDeployment(WorkFlowVo flowVo);
+	//查询所有的流程这定义信息
+	DataGridView loadAllProcessDef(WorkFlowVo flowVo);
+	//保存部署信息
+	void addDelpoyment(InputStream inputStream, String deploymentName);
+	//根据部署ID删除流程
+	void deleteDeployment(String deploymentId);
+
+}

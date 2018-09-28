@@ -1,0 +1,54 @@
+package com.sxt.sys.realm;
+
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.sxt.sys.domain.User;
+import com.sxt.sys.service.UserService;
+import com.sxt.sys.utils.ActiverUser;
+/**
+ * shrio的自定义realm
+ * @author LJH
+ *
+ */
+public class UserRealm extends AuthorizingRealm{
+
+	@Autowired
+	private UserService userService;
+	
+	/**
+	 * 认证
+	 */
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+		//1,得到身份
+		String loginname=token.getPrincipal().toString();
+		//2,根据身份查询用户信息
+		User user=this.userService.queryUserByLoginName(loginname);
+		if(null!=user) {
+			String dbPassword=user.getPwd();//数据库加密的密码
+			ActiverUser activerUser=new ActiverUser();
+			activerUser.setCurUser(user);
+			//盐
+			ByteSource credentialsSalt=ByteSource.Util.bytes(user.getSalt());
+			AuthenticationInfo info=new SimpleAuthenticationInfo(activerUser, dbPassword, credentialsSalt, getName());
+			return info;
+		}else {
+			return null;
+		}
+	}
+	/**
+	 * 授权
+	 */
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+		return null;
+	}
+}

@@ -1,0 +1,62 @@
+package com.sxt.sys.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.sxt.sys.domain.LogInfo;
+import com.sxt.sys.domain.Permission;
+import com.sxt.sys.mapper.PermissionMapper;
+import com.sxt.sys.service.PermissionService;
+import com.sxt.sys.utils.DataGridView;
+import com.sxt.sys.vo.PermissionVo;
+
+@Service
+public class PermissionServiceImpl implements PermissionService {
+
+	@Autowired
+	private PermissionMapper permissionMapper;
+
+	@Override
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo) {
+		return this.permissionMapper.queryAllPermission(permissionVo);
+	}
+
+	@Override
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo, Integer userid) {
+		return this.permissionMapper.queryAllPermission(permissionVo);
+	}
+
+	@Override
+	public DataGridView queryAllPermission(PermissionVo permissionVo) {
+		Page<Object> page = PageHelper.startPage(permissionVo.getPage(), permissionVo.getLimit());
+		// 查询
+		List<Permission> data = this.permissionMapper.queryAllPermission(permissionVo);
+		return new DataGridView(page.getTotal(), data);
+	}
+
+	@Override
+	public int addPermission(PermissionVo permissionVo) {
+		return this.permissionMapper.insert(permissionVo);
+	}
+
+	@Override
+	public Permission querPermissionById(Integer id) {
+		return this.permissionMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public int updatePermission(PermissionVo permissionVo) {
+		//只修改不为null的字段  
+		return this.permissionMapper.updateByPrimaryKeySelective(permissionVo);
+	}
+
+	@Override
+	public int deletePermission(PermissionVo permissionVo) {
+		return this.permissionMapper.deleteByPrimaryKey(permissionVo.getId());
+	}
+
+}

@@ -1,0 +1,120 @@
+package com.sxt.sys.service.impl;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.zip.ZipInputStream;
+
+import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ManagementService;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sxt.sys.service.WorkFlowService;
+import com.sxt.sys.utils.DataGridView;
+import com.sxt.sys.vo.WorkFlowVo;
+import com.sxt.sys.vo.act.ActDeploymentEntity;
+import com.sxt.sys.vo.act.ActProcessDefinitionEntity;
+
+@Service
+public class WorkFlowServiceImpl implements WorkFlowService {
+
+	@Autowired
+	private RepositoryService repositoryService;
+	@Autowired
+	private RuntimeService runtimeService;
+	@Autowired
+	private TaskService taskService;
+	@Autowired
+	private IdentityService identityService;
+	@Autowired
+	private HistoryService historyService;
+	@Autowired
+	private ManagementService managementService;
+	@Autowired
+	private FormService formService;
+
+	/**
+	 * 查询流程部署信息
+	 */
+	@Override
+	public DataGridView loadAllProcessDeployment(WorkFlowVo flowVo) {
+		String deploymentName = flowVo.getDeploymentName();
+		if (null == deploymentName) {
+			deploymentName = "";
+		}
+		// 查询总条数
+		long count = repositoryService.createDeploymentQuery().deploymentNameLike("%" + deploymentName + "%").count();
+		// 分页查询
+		List<Deployment> list = repositoryService.createDeploymentQuery().deploymentNameLike("%" + deploymentName + "%")
+				.listPage((flowVo.getPage() - 1) * flowVo.getLimit(), flowVo.getLimit());
+
+		List<ActDeploymentEntity> entities = new ArrayList<>();
+		for (Deployment deployment : list) {
+			ActDeploymentEntity entity = new ActDeploymentEntity();
+			BeanUtils.copyProperties(deployment, entity);
+			entities.add(entity);
+		}
+		return new DataGridView(count, entities);
+	}
+
+	/**
+	 * 查询流程定义信息
+	 */
+	@Override
+	public DataGridView loadAllProcessDef(WorkFlowVo flowVo) {
+		String deploymentName = flowVo.getDeploymentName();
+		if (null == deploymentName) {
+			deploymentName = "";
+		}
+		// 先查询出部署ID信息
+		List<Deployment> list = repositoryService.createDeploymentQuery().deploymentNameLike("%" + deploymentName + "%")
+				.list();
+		if (list.size() == 0) {
+			return new DataGridView(0L, null);
+		} else {
+			Set<String> deploymentIds = new HashSet<>();
+			for (Deployment d : list) {
+				deploymentIds.add(d.getId());
+			}
+			// 再查询总条数
+			long count = this.repositoryService.createProcessDefinitionQuery().deploymentIds(deploymentIds).count();
+			// 分页面查询
+			List<ProcessDefinition> data = this.repositoryService.createProcessDefinitionQuery()
+					.deploymentIds(deploymentIds)
+					.listPage((flowVo.getPage() - 1) * flowVo.getLimit(), flowVo.getLimit());
+			List<ActProcessDefinitionEntity> entities = new ArrayList<>();
+			for (ProcessDefinition pd : data) {
+				ActProcessDefinitionEntity entity = new ActProcessDefinitionEntity();
+				BeanUtils.copyProperties(pd, entity);
+				entities.add(entity);
+			}
+			return new DataGridView(count, entities);
+		}
+
+	}
+
+	//部署流程
+	@Override
+	public void addDelpoyment(InputStream inputStream, String deploymentName) {
+		ZipInputStream zipInputStream=new ZipInputStream(inputStream);
+		this.repositoryService.createDeployment()
+		.name(deploymentName).addZipInputStream(zipInputStream).deploy();
+	}
+
+	//根据部署ID删除流程
+	@Override
+	public void deleteDeployment(String deploymentId) {
+		this.repositoryService.deleteDeployment(deploymentId);
+	}
+}

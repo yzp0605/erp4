@@ -1,0 +1,15 @@
+package com.sxt.sys.service;
+
+import java.util.List;
+
+import com.sxt.sys.domain.Permission;
+import com.sxt.sys.vo.PermissionVo;
+
+public interface PermissionService {
+	
+	//查询所有的菜单
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo);
+	
+	//根据用户ID查询菜单
+	public List<Permission> queryPermissionForList(PermissionVo permissionVo,Integer userid);
+}

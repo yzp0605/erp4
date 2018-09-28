@@ -1,0 +1,63 @@
+package com.sxt.sys.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.sxt.sys.domain.User;
+import com.sxt.sys.mapper.UserMapper;
+import com.sxt.sys.service.UserService;
+import com.sxt.sys.utils.DataGridView;
+import com.sxt.sys.vo.UserVo;
+
+@Service
+public class UserServiceImpl implements UserService{
+	
+	@Autowired
+	private UserMapper userMapper;
+
+	@Override
+	public User queryUserByLoginName(String loginname) {
+		return userMapper.queryUserByLoginName(loginname);
+	}
+
+	//查询用户
+	@Override
+	public DataGridView queryAllUser(UserVo userVo) {
+		Page<Object> page=PageHelper.startPage(userVo.getPage(), userVo.getLimit());
+		List<User> data=this.userMapper.queryAllUser(userVo);
+		return new DataGridView(page.getTotal(), data);
+	}
+	@Override
+	public List<User> queryUserByDeptId(Integer deptid) {
+		return this.userMapper.queryUserByDeptId(deptid);
+	}
+	@Override
+	public int addUser(UserVo userVo) {
+		return this.userMapper.insert(userVo);
+	}
+
+	@Override
+	public User querUserById(Integer id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int updateUser(UserVo userVo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int deleteUser(UserVo userVo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+
+}
